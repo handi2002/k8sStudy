@@ -1,0 +1,66 @@
+1: Create s3 for terraform to use to store your terraform status
+    ahan-terraform-states
+
+2: create a folder to store all your terraform code
+
+3: create main.tf
+
+ * first， add backend s3
+ * focus on the vpc subnet
+ * cluster name and region
+
+4: use terraform to create eks cluster
+
+export AWS_PROFILE=andy-aws
+aws eks list-clusters --region us-west-2
+aws eks update-kubeconfig --name ahan-eks-cluster --region us-west-2 --alias ahan-eks-cluster
+
+# k get configmap -n kube-system
+# k create namespace ahan-1
+# kubectl create deployment nginx --image=nginx -n ahan-1
+# k exec -ti nginx-6799fc88d8-92nr7 /bin/bash
+# curl localhost
+
+5: run a nginx pod see if cluster is working
+
+
+6: install nginx  ingress :
+    * helm upgrade --install ingress-nginx ingress-nginx \
+        --repo https://kubernetes.github.io/ingress-nginx \
+        --namespace ingress-nginx --create-namespace
+    * or : kubectl apply -f https://raw.githubusercontent.com/kubernetes/ingress-nginx/controller-v1.2.0/deploy/static/provider/cloud/deploy.yaml
+
+    * test : kubectl create deployment demo2 --image=nginx --port=80
+             kubectl expose deployment demo2
+
+7: create ingress
+
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: example
+  namespace: ahan-1
+  annotations:
+    nginx.ingress.kubernetes.io/proxy-connect-timeout: "600"
+    nginx.ingress.kubernetes.io/proxy-read-timeout: "600"
+    nginx.ingress.kubernetes.io/proxy-send-timeout: "600"
+spec:
+  ingressClassName: nginx
+  rules:
+    - host: www.andy.com
+      http:
+        paths:
+          - pathType: Prefix
+            backend:
+              service:
+                name: demo2
+                port:
+                  number: 80
+            path: /
+
+
+    * k create -f ingress.yml
+      failed
+      $ kubectl get validatingwebhookconfigurations
+      ingress-nginx-admission
+      $ kubectl delete -A ValidatingWebhookConfiguration ingress-nginx-admission
