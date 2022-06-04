@@ -108,9 +108,9 @@ module "eks" {
 
   aws_auth_roles = [
     {
-      rolearn  = "arn:aws:iam::075657388628:role/ahan_eks_cluster_role"
-      username = "ahan_eks_cluster_role"
-      groups   = ["system:masters"]
+      rolearn  = "arn:aws:iam::075657388628:role/ahan-eks-cluster-role"
+      username = "ahan-eks-cluster-role"
+      groups   = ["ahan-eks-cluster-group"]
     },
   ]
 
